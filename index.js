@@ -7,6 +7,7 @@ import 'dotenv/config';
 import { validationResult } from 'express-validator';
 import { registerValidation } from './validations/auth.js';
 import UserModel from './models/User.js';
+import checkAuth from './utils/checkAuth.js';
 
 mongoose
   .connect(process.env.NODE_ENV_MONGODB)
@@ -72,7 +73,7 @@ app.post('/auth/login', async (req, res) => {
       user._doc.passwordHash
     );
     if (!isValidPass) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: 'Неверный логин или пароль!',
       });
     }
@@ -92,19 +93,32 @@ app.post('/auth/login', async (req, res) => {
       ...userData,
       token,
     });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: 'Не удалось авторизоваться!',
+    });
+  }
 });
 
-// app.post('/auth/login', (req, res) => {
-//   const token = jwt.sign(
-//     {
-//       email: req.body.email,
-//       fullName: 'Jack',
-//     },
-//     `${process.env.NODE_ENV_SECRET_WORLD}`
-//   );
-//   res.json({ success: true, token });
-// });
+app.post('/auth/me', checkAuth, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.userId);
+    if (!user)
+      return res.status(400).json({
+        message: 'Пользователь не найден!',
+      });
+    const { passwordHash, ...userData } = user._doc;
+    res.json({
+      ...userData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Нет доступа!',
+    });
+  }
+});
 
 app.listen(4444, (err) => {
   if (err) return console.log(err);
