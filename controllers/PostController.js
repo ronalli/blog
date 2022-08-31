@@ -91,3 +91,29 @@ export const create = async (req, res) => {
     });
   }
 };
+
+export const update = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    PostModel.findOneAndUpdate(
+      {
+        _id: postId,
+      },
+      {
+        title: req.body.title,
+        text: req.body.text,
+        imageUrl: req.body.imageUrl,
+        user: req.userId,
+        tags: req.body.tags,
+      }
+    );
+    res.json({
+      succes: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Не удалось обновить статью!',
+    });
+  }
+};
