@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import multer from 'multer';
 import 'dotenv/config';
 
 import * as UserController from './controllers/UserController.js';
@@ -16,18 +17,34 @@ mongoose
 
 const app = express();
 
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 app.post('/auth/register', registerValidation, UserController.register);
-
 app.post('/auth/login', loginValidation, UserController.login);
-
 app.get('/auth/me', checkAuth, UserController.getMe);
+
+app.post('/uploads', checkAuth, upload.single('image'), (req, res) => {
+  res.json({
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
 app.post('/posts', checkAuth, postCreateValidation, PostController.create);
-app.patch('/posts/:id', checkAuth, PostController.update);
+app.patch('/posts/:id', checkAuth, postCreateValidation, PostController.update);
 app.delete('/posts/:id', checkAuth, PostController.remove);
 
 app.listen(4444, (err) => {
