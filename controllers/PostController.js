@@ -111,7 +111,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const postId = req.params.id;
-    PostModel.findOneAndUpdate(
+    await PostModel.findOneAndUpdate(
       {
         _id: postId,
       },
@@ -120,7 +120,7 @@ export const update = async (req, res) => {
         text: req.body.text,
         imageUrl: req.body.imageUrl,
         user: req.userId,
-        tags: req.body.tags,
+        tags: req.body.tags.split(',').map((item) => item.trim().replace(/\s/gi, '')),
       }
     );
     res.json({
