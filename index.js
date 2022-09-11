@@ -67,6 +67,12 @@ app.post(
   PostController.create
 );
 app.patch(
+  '/posts/:id/add-comment',
+  checkAuth,
+  handleValidationErrors,
+  PostController.addComment
+);
+app.patch(
   '/posts/:id',
   checkAuth,
   postCreateValidation,

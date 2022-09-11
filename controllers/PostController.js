@@ -41,6 +41,17 @@ export const getAll = async (req, res) => {
   }
 };
 
+export const addComment = async (req, res) => {
+  try {
+    console.log(req.body);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Не удалось добавить комментарий!',
+    });
+  }
+};
+
 export const getOne = async (req, res) => {
   try {
     const postId = req.params.id;
