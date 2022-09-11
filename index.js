@@ -46,6 +46,7 @@ app.post(
   handleValidationErrors,
   UserController.login
 );
+
 app.get('/auth/me', checkAuth, UserController.getMe);
 
 app.post('/uploads', checkAuth, upload.single('image'), (req, res) => {
@@ -55,6 +56,7 @@ app.post('/uploads', checkAuth, upload.single('image'), (req, res) => {
 });
 
 app.get('/tags', PostController.getLastTags);
+app.get('/tags/:value', PostController.findPostsByTag);
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
 app.post(

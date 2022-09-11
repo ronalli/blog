@@ -16,6 +16,19 @@ export const getLastTags = async (req, res) => {
   }
 };
 
+export const findPostsByTag = async (req, res) => {
+  try {
+    const tag = req.params.value;
+    const posts = await PostModel.find({ tags: { $all: [tag] } });
+    res.json(posts);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Не удалось получить статьи!',
+    });
+  }
+};
+
 export const getAll = async (req, res) => {
   try {
     const posts = await PostModel.find().populate('user').exec();
@@ -120,7 +133,9 @@ export const update = async (req, res) => {
         text: req.body.text,
         imageUrl: req.body.imageUrl,
         user: req.userId,
-        tags: req.body.tags.split(',').map((item) => item.trim().replace(/\s/gi, '')),
+        tags: req.body.tags
+          .split(',')
+          .map((item) => item.trim().replace(/\s/gi, '')),
       }
     );
     res.json({
