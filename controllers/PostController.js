@@ -1,3 +1,4 @@
+import { body } from 'express-validator';
 import PostModel from '../models/Post.js';
 
 export const getLastTags = async (req, res) => {
@@ -43,7 +44,31 @@ export const getAll = async (req, res) => {
 
 export const addComment = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
+    PostModel.findOneAndUpdate(
+      {
+        _id: req.body.postId,
+      },
+      {
+        $push: { comments: req.body },
+      },
+      {
+        returnDocument: 'after',
+      },
+      (error, doc) => {
+        if (error) {
+          console.log(error);
+          return res.status(500).json({
+            message: 'Не удалось вернуть статью!',
+          });
+        }
+        if (!doc)
+          return res.status(404).json({
+            message: 'Статья не найдена!',
+          });
+        res.json(doc);
+      }
+    );
   } catch (error) {
     console.log(error);
     res.status(500).json({
